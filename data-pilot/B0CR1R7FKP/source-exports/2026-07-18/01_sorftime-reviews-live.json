@@ -3,7 +3,9 @@
     "asin": "B0CR1R7FKP",
     "site": "US",
     "review_type": "Both",
-    "captured_at": "2026-07-18"
+    "captured_at": "2026-07-18",
+    "capture_status": "live_success",
+    "mcp_tool": "mcp__sorftime__product_reviews"
   },
   "rows": [
     {
