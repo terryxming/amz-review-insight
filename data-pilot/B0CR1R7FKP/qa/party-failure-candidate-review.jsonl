@@ -1,0 +1,7 @@
+{"review_id":"R1071LETK93U1O","review_status":"valid","failure_type":"venue_wifi","task_impact":"return_after_party_setup_failure","decision_basis":"为40岁派对购买，但Wi-Fi无法连接，最终退货。","evidence_selected":true}
+{"review_id":"R2D2ORRMA2ACRK","review_status":"valid","failure_type":"wrong_power_adapter","task_impact":"birthday_party_ruined","decision_basis":"收到欧规插头而非美规插头，导致姐姐的40岁卡拉OK生日派对被破坏。","evidence_selected":true}
+{"review_id":"R2DK3Q5P1EPHUL","review_status":"valid","failure_type":"microphone_charging","task_impact":"replacement_machine_after_four_months","decision_basis":"派对使用需要接电视，四个月后麦克风无法充电，客服更换整机。","evidence_selected":true}
+{"review_id":"R2EEB5UBTF3EDG","review_status":"valid","failure_type":"content_subscription_expectation","task_impact":"extra_subscription_and_tv_setup_for_real_party","decision_basis":"真正的歌词卡拉OK派对需要付费订阅并连接电视，产品未内置预期中的歌曲。","evidence_selected":true}
+{"review_id":"R2FXBIPC41Z7HF","review_status":"valid","failure_type":"battery_duration","task_impact":"insufficient_runtime_for_big_party","decision_basis":"充电慢且续航只有数小时，评论明确说大型派对无法获得足够使用时间。","evidence_selected":true}
+{"review_id":"R30JCNEHY5AURY","review_status":"valid","failure_type":"microphone_pickup_and_sound","task_impact":"poor_karaoke_party_performance","decision_basis":"音箱表现弱且麦克风必须贴近嘴部，明确影响卡拉OK派对。","evidence_selected":true}
+{"review_id":"RD73IFZUY4PZR","review_status":"valid","failure_type":"venue_wifi_and_instructions","task_impact":"office_party_fallback_to_phone_bluetooth","decision_basis":"家中Wi-Fi可用但酒店宴会厅失败，只能改用手机蓝牙；说明和应用获取信息不足。","evidence_selected":true}
