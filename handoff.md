@@ -12,6 +12,7 @@
 - `13_business-recommendations.md` 已基于全部 559 条 Review 形成 14 条业务建议；Listing 页面事实已于 2026-07-19 核对。
 - `14_overview-pilot.md`、`15_overview-report-pilot.json` 与 `16_overview-report-pilot.html` 是已确认并冻结的 40 条报告校准快照，不承担全量数据角色，也不随之后的 `08` 语义修正回写。
 - `17_full-overview-report.json` 与 `18_full-overview-report.html` 已完成。它们直接消费 `08 + 12 + 13` 并复用 `14–16` 的内容结构、数据契约与界面交互，没有重新执行 559 条语义分析。
+- Skill `v1.0.0` 尚未创建；当前只以 `docs/amazon-review-insight-skill-v1-planning.md` 记录已验证 SOP、关键盲点、四类已知未知、前置门禁与建议结构，待公司电脑续工。
 - 全量报告包含 559 条 Review、2,546 个反馈点、6 条发现到行动链和 14 条业务动作；动作卡区分主题覆盖范围、完整精确动作证据和最多 8 条代表证据，所有证据弹窗按 8 条一页渲染。
 - 仓库产物已按 `source-exports`、`analysis`、`reports` 与 `supporting-data` 归位；`.playwright-cli`、`outputs` 与 Python 字节码缓存不进入仓库。
 - 14 项动作共引用 476 条唯一 Review，其中 437 条不在 40 条分层试点中；单项动作覆盖 14–321 条 Review、15–603 个精确反馈点，不再出现所有动作都显示 8 条的假全量现象。
@@ -38,6 +39,8 @@
 - 仓库路径：`D:\amz-review-insight`；当前分支：`main`。
 - 本轮分析、报告、脚本与目录治理成果已纳入仓库版本管理；跨设备续工前先拉取 `origin/main`。
 - 正式报告路径：`data-pilot/B0CR1R7FKP/reports/2026-07-18/18_full-overview-report.html`。
+- 正式报告是单文件 HTML，CSS、JavaScript 与报告数据均内嵌；已用 Chrome 通过 `file://` 直接验证章节跳转、动作弹窗、问题筛选、分页和完整编码弹窗，无需启动本地服务。
+- 当前仓库不存在任何 `index.html`；旧的 `desktop-overview-prototype/index.html` 已在提交 `e314ced` 删除。仓库现有 HTML 仅为 `16_overview-report-pilot.html` 与 `18_full-overview-report.html`。
 - 40 条试点生成脚本为 `scripts/build-overview-report-pilot.py`；全量报告生成脚本为 `scripts/build-full-overview-report.py`。
 - 用户根目录下旧的亚马逊评论 Skill 已由用户删除。仓库内文档与正式产物是当前工作依据。
 - JSONL 始终是评论与编码数据的唯一事实源；不要同时生成 Excel、CSV 或无意义中间文件。
@@ -49,4 +52,6 @@
 - 修正全量报告证据组装：总览和发现使用完整主题 Review 集合；动作 `evidence_refs` 从 `12` 的完整主题单元重建，代表证据与每页 8 条展示单独处理，没有重做 `08`、`12`、`13`。
 - 强化机械门禁：逐项校验动作预期与实际 `unit_id` 集合相等、引用来源可追溯、无重复、数量分布未被 8 条上限截断，并确认 437 条精确证据 Review 位于 40 条试点之外。
 - 浏览器验收通过：发现 F-01 显示 154 条关联证据并分页为 20 页；动作 V-02 显示 308 条 Review、603 个精确反馈点并分页为 39 页；翻页正常，控制台 0 错误、0 警告。
+- 补充完成单文件离线验收：以 `file://` 打开正式报告后，动作弹窗、具体问题筛选（184 条收窄至 27 条）、分页（进入第 2/4 页）、完整编码弹窗和侧栏章节跳转均正常，且没有外部网络依赖。
+- 核实仓库工作树、Git 跟踪文件和忽略文件均无 `index.html`；此前把浏览器遗留的 `127.0.0.1:4173` 标签页误称为旧文件，现已纠正。
 - 完成仓库归位：`14–18` 移入 `reports`，辅助业务数据移入 `supporting-data`，删除并忽略三类运行缓存，同时更新根 README、产物索引、路径引用和目录布局决策。
