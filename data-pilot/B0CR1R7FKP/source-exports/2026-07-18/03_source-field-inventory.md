@@ -121,7 +121,7 @@ Sorftime 当前不保证返回 `review_id`、评论者、VP、Vine、Helpful 数
 
 ## 本轮结果
 
-- 已生成 `04_merged-reviews.jsonl`，共 559 条，每条严格包含已确认的 11 个字段。
+- 已生成 `04_merged-reviews.jsonl`，共 559 条，每条严格包含已确认的 13 个字段。
 - 57 条跨来源重复记录合并为领星主记录，并补入 `sorftime_评论产品的属性`。
 - 1 条 Sorftime 独有评论作为独立记录保留，领星私有字段为空字符串。
 - 没有替 Sorftime 推断 VP、Vine、Review ID 或子 ASIN。

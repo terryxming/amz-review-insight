@@ -57,6 +57,20 @@ def semantic_record(sequence=1, evidence="Great sound"):
             "总体极性": "正向为主",
             "决策结果": "unknown",
         },
+        "Review层推测": {
+            "购买动机": {
+                "处理结果": "证据不足",
+                "可能推测": ["unknown"],
+                "依据": ["unknown"],
+                "事实边界": "原文未明确说明购买动机",
+            },
+            "期望结果": {
+                "处理结果": "证据不足",
+                "可能推测": ["unknown"],
+                "依据": ["unknown"],
+                "事实边界": "原文未明确说明购买前期待",
+            },
+        },
         "反馈点": [{
             "证据原文": evidence,
             "事实判断": "用户认为声音好。",
@@ -84,7 +98,7 @@ class ReviewCodingPipelineTests(unittest.TestCase):
         self.assertEqual(merged[0]["反馈点"][0]["unit_id"], "R001-U01")
         self.assertEqual(
             list(merged[0]),
-            ["编码序号", "来源定位", "Review层编码", "反馈点"],
+            ["编码序号", "来源定位", "Review层编码", "Review层推测", "反馈点"],
         )
 
     def test_validation_rejects_non_verbatim_evidence(self):
@@ -102,6 +116,20 @@ class ReviewCodingPipelineTests(unittest.TestCase):
         merged = pipeline.merge_records([source_record()], [semantic])
 
         with self.assertRaisesRegex(ValueError, "总体极性"):
+            pipeline.validate_records([source_record()], merged)
+
+    def test_validation_rejects_inference_promoted_to_fact_layer(self):
+        semantic = semantic_record()
+        semantic["Review层推测"]["购买动机"] = {
+            "处理结果": "可谨慎推测",
+            "可能推测": ["可能为家庭娱乐购买"],
+            "依据": ["评论提到唱歌"],
+            "事实边界": "只是推测",
+        }
+        semantic["Review层编码"]["购买动机"] = ["为家庭娱乐购买"]
+        merged = pipeline.merge_records([source_record()], [semantic])
+
+        with self.assertRaisesRegex(ValueError, "谨慎推测不得写入事实层"):
             pipeline.validate_records([source_record()], merged)
 
     def test_prepare_writes_ten_record_batches(self):

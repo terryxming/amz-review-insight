@@ -1,6 +1,8 @@
 node_modules/
 dist/
 __pycache__/
+.playwright-cli/
+outputs/
 .npm-cache/
 .env
 .env.*

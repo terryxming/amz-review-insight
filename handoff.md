@@ -1,50 +1,52 @@
-# Amazon评论洞察Skill交接
+# Amazon 评论洞察 Skill 交接
 
-本文件只记录当前可续工状态。评论事实源是 `data-pilot/B0CR1R7FKP/source-exports/2026-07-18/04_merged-reviews.jsonl`，逐条编码事实源是 `data-pilot/B0CR1R7FKP/analysis/2026-07-18/08_full-review-coding.jsonl`；完整方法只以同目录的 `07_analysis-method-and-standards.md` 为准。
+本文件只记录当前可续工状态。评论、编码、主题、建议与全量报告数据的正式事实源分别是 `04_merged-reviews.jsonl`、`08_full-review-coding.jsonl`、`12_full-theme-analysis.json`、`13_business-recommendations.md` 与 `17_full-overview-report.json`；产物编号与状态以 `artifact-index.md` 为准。
 
 
 ## 当前状态
 
-- 当前站点为 Amazon US，子 ASIN 为 `B0CR1R7FKP`。
-- `04_merged-reviews.jsonl` 共 559 条、每条 13 个字段，SHA-256 为 `6dd60229bdcfbb35165e521bfeceb3511488b99a908f209bb11ff55a120e820a`。
-- 用户确认的全量编码契约已记录在 `docs/decisions/0001-full-review-coding-contract.md`。
-- `08_full-review-coding.jsonl` 已完成 559 条 Review 的正式编码，共 2,110 个反馈点；正式文件不含 `样本角色`、`入样理由`、批次号、Agent 名称或模型名称。
-- 全量编码已通过 schema、类型、枚举、来源定位、英文证据逐字回查和源文件哈希校验。
-- 风险分层语义复核覆盖 161 条唯一 Review；56 条修正建议经主流程逐条对照中英文原文后采纳，修正后的全量文件重新通过机械全检。
-- 用户确认使用 8 个固定 Agent，但运行环境最多允许 6 个同时工作；本轮实际以 6 个固定工作 Agent 完成 56 批，偏差只影响轮次数。
-- 主题归并和业务建议尚未开始，没有创建主题产物。方法文档只定义了主题证据口径，尚未定义主题文件名与 schema。
+- 当前试点对象为 Amazon 美国站 ASIN `B0CR1R7FKP`。
+- `04_merged-reviews.jsonl` 是唯一评论事实源，共 559 条、每条固定 13 个字段；SHA-256 为 `6dd60229bdcfbb35165e521bfeceb3511488b99a908f209bb11ff55a120e820a`。
+- `08_full-review-coding.jsonl` 已完成 559 条 Review 层编码与 2,546 个反馈点编码，并完成机械全检和全量语义复核。
+- `12_full-theme-analysis.json` 已完成全量主题归并：10 个消费者与场景主题、16 个产品体验主题、8 条机会链；515 条 Review 进入消费者与场景主题，44 条因证据不足未强行归类。
+- `13_business-recommendations.md` 已基于全部 559 条 Review 形成 14 条业务建议；Listing 页面事实已于 2026-07-19 核对。
+- `14_overview-pilot.md`、`15_overview-report-pilot.json` 与 `16_overview-report-pilot.html` 是已确认并冻结的 40 条报告校准快照，不承担全量数据角色，也不随之后的 `08` 语义修正回写。
+- `17_full-overview-report.json` 与 `18_full-overview-report.html` 已完成。它们直接消费 `08 + 12 + 13` 并复用 `14–16` 的内容结构、数据契约与界面交互，没有重新执行 559 条语义分析。
+- 全量报告包含 559 条 Review、2,546 个反馈点、6 条发现到行动链和 14 条业务动作；动作卡区分主题覆盖范围、完整精确动作证据和最多 8 条代表证据，所有证据弹窗按 8 条一页渲染。
+- 仓库产物已按 `source-exports`、`analysis`、`reports` 与 `supporting-data` 归位；`.playwright-cli`、`outputs` 与 Python 字节码缓存不进入仓库。
+- 14 项动作共引用 476 条唯一 Review，其中 437 条不在 40 条分层试点中；单项动作覆盖 14–321 条 Review、15–603 个精确反馈点，不再出现所有动作都显示 8 条的假全量现象。
 
 
 ## 下一步
 
-1. 先对 `08` 的开放维度做同义归一，保留原始证据和可回查关系。
-2. 用少量主题样例与用户校准主题粒度、字段结构、文件名和成功标准，再扩展到全量主题归并。
-3. 主题汇总同时报告唯一 Review 数、反馈点数、559 条分母、星级与时间分布、证据强度和代表性英文证据。
-4. 进入 Listing 建议前实时抓取当前 Amazon 页面，先证明页面缺口或歧义；产品建议另需结合复现、规格、退货或售后数据。
+1. 按 `docs/amazon-review-insight-skill-v1-planning.md` 开始固化 Skill `v1.0.0`。
+2. 先解决数据清洗不可重复和 40 条校准快照缺少输入版本绑定的问题，再封装编码、主题、建议与报告流程。
+3. 使用非卡拉 OK 品类做前向测试，验证 schema、主题归并与业务建议不会过拟合当前样本。
+4. 实施 Listing、副图、A+、五点或产品迭代前，重新核对在线 Listing，并为动作补充后台指标或实验数据。
 
 
 ## 未决问题
 
-- 主题产物的文件名、schema、主题粒度和人工验收样例尚未由用户确认。
-- 评论分析的最终业务成功标准仍需在主题校准阶段具体化，目前只能验证结论可追溯、事实与解释分开以及候选动作有证据边界。
-- 评论不能证明未购买者、沉默用户、转化率、订单占比或真实故障率。
-- Listing 与产品详情的当前快照尚未获取，不能根据历史页面或评论单独断言页面缺口。
+- 评论证据能支持消费者、场景、任务、结果与问题洞察，但不能单独证明转化率、退货率、利润或改版增量；这些仍需后台与实验数据验证。
+- `13` 中的 Listing 页面事实核对日期为 2026-07-19。真正实施页面修改前，应重新核对在线 Listing，避免把页面变化误当成评论洞察。
+- `17` 中动作的 `source_review_rows` 表示关联主题覆盖范围，`evidence_refs` 表示由 `12` 的产品主题 `unit_id` 与机会链 `关联unit_id` 重建的完整精确动作证据，`representative_evidence_refs` 只是最多 8 条的展示子集；三种口径不能混用。
+- `14–16` 是历史校准快照；当前 `scripts/build-overview-report-pilot.py` 读取已经刷新过的 `08`，其购买动机与决策结果覆盖数已不同，不能原样复现快照。不要为让脚本通过而静默改写已确认产物，后续应显式绑定校准输入版本。
 
 
 ## 环境备忘
 
-- 工作目录：`D:\amz-review-insight`。
-- 当前分支：`main`，远端：`origin/main`。
-- 用户根目录中原先安装的旧 `amazon-review-insight` skill 已由用户删除，当前只使用本仓事实源和方法。
-- 全量管线脚本为 `scripts/review-coding-pipeline.py`，回归测试为 `scripts/test-review-coding-pipeline.py`，仅依赖 Python 标准库。
-- JSONL 始终是唯一事实源；不生成 Excel、CSV 或永久批次文件。
-- 旧 Vite 服务已停止，端口 `4173` 不再承担工作台预览。
+- 仓库路径：`D:\amz-review-insight`；当前分支：`main`。
+- 本轮分析、报告、脚本与目录治理成果已纳入仓库版本管理；跨设备续工前先拉取 `origin/main`。
+- 正式报告路径：`data-pilot/B0CR1R7FKP/reports/2026-07-18/18_full-overview-report.html`。
+- 40 条试点生成脚本为 `scripts/build-overview-report-pilot.py`；全量报告生成脚本为 `scripts/build-full-overview-report.py`。
+- 用户根目录下旧的亚马逊评论 Skill 已由用户删除。仓库内文档与正式产物是当前工作依据。
+- JSONL 始终是评论与编码数据的唯一事实源；不要同时生成 Excel、CSV 或无意义中间文件。
 
 
 ## 上次会话摘要
 
-- 用户确认五项全量契约：删除试点字段、冻结两套极性词表、集合字段统一数组、8-Agent/10 条批次、机械与风险复核先于主题建议。
-- 主流程将 559 条拆成 56 批，运行时受 6-Agent 上限约束后完成全部语义编码并合并为 `08_full-review-coding.jsonl`。
-- 初次合并得到 559 条 Review、2,090 个反馈点；风险复核覆盖 161 条 Review，主流程采纳 56 条修正后最终为 2,110 个反馈点。
-- 修正集中在场景状态、无证据动机与预期、价值链越界、反馈点漏拆、候选动作夸大和极性判断。
-- 当前停在主题阶段入口：先做维度同义归一和主题产物校准，不在 schema 未确认时生成主题报告；Listing 建议必须先抓取当前页面。
+- 完成 `17_full-overview-report.json` 与 `18_full-overview-report.html`，全量组装复用了已确认的报告结构，没有重做编码、主题发现或业务建议。
+- 修正全量报告证据组装：总览和发现使用完整主题 Review 集合；动作 `evidence_refs` 从 `12` 的完整主题单元重建，代表证据与每页 8 条展示单独处理，没有重做 `08`、`12`、`13`。
+- 强化机械门禁：逐项校验动作预期与实际 `unit_id` 集合相等、引用来源可追溯、无重复、数量分布未被 8 条上限截断，并确认 437 条精确证据 Review 位于 40 条试点之外。
+- 浏览器验收通过：发现 F-01 显示 154 条关联证据并分页为 20 页；动作 V-02 显示 308 条 Review、603 个精确反馈点并分页为 39 页；翻页正常，控制台 0 错误、0 警告。
+- 完成仓库归位：`14–18` 移入 `reports`，辅助业务数据移入 `supporting-data`，删除并忽略三类运行缓存，同时更新根 README、产物索引、路径引用和目录布局决策。

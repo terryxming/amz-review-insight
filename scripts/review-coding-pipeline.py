@@ -22,7 +22,7 @@ SOURCE_FIELDS = [
     "lingxing_MSKU",
     "lingxing_ASIN",
 ]
-TOP_LEVEL_FIELDS = ["编码序号", "来源定位", "Review层编码", "反馈点"]
+TOP_LEVEL_FIELDS = ["编码序号", "来源定位", "Review层编码", "Review层推测", "反馈点"]
 SOURCE_LOCATOR_FIELDS = ["数据行", "review_id", "评论日期", "评星", "标题"]
 SCENE_FIELDS = ["实际场景", "计划场景", "用户估计", "转述证据"]
 REVIEW_FIELDS = [
@@ -47,6 +47,8 @@ VALUE_CHAIN_FIELDS = [
     "证据强度",
 ]
 REVIEW_EVIDENCE_FIELDS = ["等级", "说明"]
+INFERENCE_FIELDS = ["购买动机", "期望结果"]
+INFERENCE_DETAIL_FIELDS = ["处理结果", "可能推测", "依据", "事实边界"]
 FEEDBACK_FIELDS = [
     "unit_id",
     "证据原文",
@@ -64,6 +66,7 @@ ACTION_FIELDS = ["Listing", "图片与A+", "产品"]
 REVIEW_POLARITIES = {"正向", "正向为主", "正负混合", "负向为主", "负向"}
 FEEDBACK_POLARITIES = {"正向", "中性", "负向", "正负混合"}
 EVIDENCE_LEVELS = {"高", "中", "低", "unknown"}
+INFERENCE_STATUSES = {"已有直接证据", "可谨慎推测", "证据不足"}
 
 
 def read_jsonl(path):
@@ -125,7 +128,11 @@ def merge_records(sources, semantic_records):
             raise ValueError("语义记录的编码序号必须是整数")
         if sequence in by_sequence:
             raise ValueError(f"编码序号 {sequence} 重复")
-        _expect_keys(record, ["编码序号", "Review层编码", "反馈点"], f"语义记录 {sequence}")
+        _expect_keys(
+            record,
+            ["编码序号", "Review层编码", "Review层推测", "反馈点"],
+            f"语义记录 {sequence}",
+        )
         by_sequence[sequence] = record
 
     expected = set(range(1, len(sources) + 1))
@@ -153,6 +160,7 @@ def merge_records(sources, semantic_records):
                 "标题": source["标题"],
             },
             "Review层编码": copy.deepcopy(semantic["Review层编码"]),
+            "Review层推测": copy.deepcopy(semantic["Review层推测"]),
             "反馈点": feedback,
         })
     return merged
@@ -170,7 +178,11 @@ def validate_semantic_batch(source_batch, semantic_records):
     semantics = {}
     for record in semantic_records:
         sequence = record.get("编码序号")
-        _expect_keys(record, ["编码序号", "Review层编码", "反馈点"], f"语义记录 {sequence}")
+        _expect_keys(
+            record,
+            ["编码序号", "Review层编码", "Review层推测", "反馈点"],
+            f"语义记录 {sequence}",
+        )
         if not isinstance(sequence, int) or sequence in semantics:
             raise ValueError("语义记录的编码序号必须是唯一整数")
         semantics[sequence] = record
@@ -186,6 +198,11 @@ def validate_semantic_batch(source_batch, semantic_records):
         semantic = semantics[sequence]
         location = f"编码序号 {sequence}"
         _validate_review(semantic["Review层编码"], location)
+        _validate_inference(
+            semantic["Review层推测"],
+            semantic["Review层编码"],
+            location,
+        )
         feedback = semantic["反馈点"]
         if not isinstance(feedback, list) or not feedback:
             raise ValueError(f"{location}.反馈点必须是非空数组")
@@ -224,6 +241,11 @@ def validate_records(sources, records):
             raise ValueError(f"{location}.来源定位与 04 不一致")
 
         _validate_review(record["Review层编码"], location)
+        _validate_inference(
+            record["Review层推测"],
+            record["Review层编码"],
+            location,
+        )
         feedback = record["反馈点"]
         if not isinstance(feedback, list) or not feedback:
             raise ValueError(f"{location}.反馈点必须是非空数组")
@@ -284,6 +306,30 @@ def _validate_feedback(unit, source, location):
     _expect_keys(unit["候选业务动作"], ACTION_FIELDS, f"{location}.候选业务动作")
     for field in ACTION_FIELDS:
         _expect_string(unit["候选业务动作"][field], f"{location}.候选业务动作.{field}")
+
+
+def _validate_inference(inference, review, location):
+    inference_location = f"{location}.Review层推测"
+    _expect_keys(inference, INFERENCE_FIELDS, inference_location)
+    for field in INFERENCE_FIELDS:
+        item_location = f"{inference_location}.{field}"
+        item = inference[field]
+        _expect_keys(item, INFERENCE_DETAIL_FIELDS, item_location)
+        status = item["处理结果"]
+        if status not in INFERENCE_STATUSES:
+            raise ValueError(f"{item_location}.处理结果不在受控词表")
+        _expect_string_array(item["可能推测"], f"{item_location}.可能推测")
+        _expect_string_array(item["依据"], f"{item_location}.依据")
+        _expect_string(item["事实边界"], f"{item_location}.事实边界")
+
+        has_direct_evidence = review[field] != ["unknown"]
+        has_inference = item["可能推测"] != ["unknown"] and item["依据"] != ["unknown"]
+        if status == "已有直接证据" and (not has_direct_evidence or has_inference):
+            raise ValueError(f"{item_location} 与 Review 层直接证据不一致")
+        if status == "证据不足" and (has_direct_evidence or has_inference):
+            raise ValueError(f"{item_location} 的证据不足状态与内容不一致")
+        if status == "可谨慎推测" and (has_direct_evidence or not has_inference):
+            raise ValueError(f"{item_location} 的谨慎推测不得写入事实层，且必须有推测与依据")
 
 
 def _expect_keys(value, expected, location):
